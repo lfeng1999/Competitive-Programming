@@ -2,63 +2,75 @@
 
 using namespace std;
 
-struct candidate
-{
+struct Candidate{
     double s, q, r;
     int id;
-    bool operator <(const candidate &a) const{
+    bool operator < (const Candidate &a){
         return r < a.r;
     }
-}C[500010];
-int N,W;
+} workers[500010];
 
+int N;
+double W;
 
 int main()
 {
-    //freopen("IOI.txt","r",stdin);
+    //freopen("IOI.txt", "r", stdin);
     cin.sync_with_stdio(0); cin.tie(0);
+
     cin >> N >> W;
-    for (int i=0; i!=N; ++i){
-        cin >> C[i].s >> C[i].q;
-        C[i].r = C[i].s/C[i].q;
-        C[i].id = i+1;
+
+    for (int i=0; i<N; ++i){
+        cin >> workers[i].s >> workers[i].q;
+        workers[i].r = workers[i].s / workers[i].q;
+        workers[i].id = i + 1;
     }
-    sort(C,C+N);
-    double totalQ = 0, bestCost;
-    int lim = 0, bestsz = 0, bestIndex;
-    vector<int> Q;
-    for (int i=0; i!=N; ++i){
-        Q.push_back(C[i].q);
-        push_heap(Q.begin(),Q.end());
-        totalQ+=C[i].q;
-        double maxQ = W/C[i].r;
-        while (totalQ > maxQ){
-            totalQ -= Q[0];
-            pop_heap(Q.begin(),Q.end());
-            Q.pop_back();
+    sort(workers, workers+N);
+
+    vector<double> V;
+    double bestcost = 0, curqual = 0;
+    int bestidx = 0, bestpeople = 0;
+
+
+    for (int i=0; i<N; ++i){
+        V.push_back(workers[i].q);
+        push_heap(V.begin(), V.end());
+        curqual += workers[i].q;
+
+        while (curqual * workers[i].r > W){
+            curqual -= V[0];
+            pop_heap(V.begin(), V.end());
+            V.pop_back();
         }
-        int sz = Q.size();
-        double totalCost = totalQ*C[i].r;
-        if (sz > bestsz || (sz == bestsz && totalCost < bestCost)){
-            bestIndex = i;
-            bestCost = totalCost;
-            bestsz = sz;
+        if (V.size() > bestpeople){
+            bestpeople = V.size();
+            bestcost = curqual * workers[i].r;
+            bestidx = i;
+        }
+        else if (V.size() == bestpeople && bestcost > curqual * workers[i].r){
+            bestcost = curqual * workers[i].r;
+            bestidx = i;
         }
     }
 
-    vector<pair<double,int>> Q2;
-    for (int i=0; i<=bestIndex; ++i){
-        Q2.push_back(make_pair(C[i].q, C[i].id));
-        push_heap(Q2.begin(),Q2.end());
+    vector<pair<double,int>> V2;
+
+    for (int i=0; i<=bestidx; ++i){
+        V2.push_back(make_pair(workers[i].q, workers[i].id));
+        push_heap(V2.begin(), V2.end());
     }
-    while (Q2.size()!=bestsz){
-        pop_heap(Q2.begin(),Q2.end());
-        Q2.pop_back();
+    while (V2.size() != bestpeople){
+        pop_heap(V2.begin(), V2.end());
+        V2.pop_back();
     }
-    printf("%d\n",Q2.size());
-    for (int i=0; i!=Q2.size(); ++i){
-        printf("%d\n",Q2[i].second);
+    printf("%d\n", bestpeople);
+
+    for (int i=0; i<V2.size(); ++i){
+        printf("%d\n", V2[i].second);
     }
+
+
+
 
 
     return 0;

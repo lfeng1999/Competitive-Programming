@@ -1,72 +1,41 @@
-#include <iostream>
-#include <algorithm>
-#include <fstream>
-#include <vector>
+#include <bits/stdc++.h>
 
 using namespace std;
 
-vector<int> graph[20001];
+vector<int> graph[20010];
+bool past[20010];
+int tree_sz[20010], min_max_subtree = 1e9, N, best_node;
 
-bool past[20001];
-int size[20001];
-int order[20001];
-
-int counter = 0;
-
-int dfs(int node)
-{
-	int count = 1;
-	past[node] = true;
-	order[node] = counter;
-	++counter;
-	for (int i = 0; i != graph[node].size(); ++i)
-	{
-		if (!past[graph[node][i]])
-		{
-			count += dfs(graph[node][i]);
-
-		}
-	}
-	size[node] = count;
-
-	return count;
+int dfs(int v){
+    int max_subtree = 0;
+    past[v] = true;
+    for (int u : graph[v]){
+        if (past[u]) continue;
+        int child_sz = dfs(u);
+        max_subtree = max(max_subtree, child_sz);
+        tree_sz[v] += child_sz;
+    }
+    max_subtree = max(max_subtree, N - tree_sz[v]);
+    if (max_subtree < min_max_subtree){
+        min_max_subtree = max_subtree;
+        best_node = v;
+    }
+    return tree_sz[v];
 }
 
 
 int main()
 {
-	//ifstream file("Balancing.txt");
-	int N = 0;
-	scanf("%d", &N);
-	for (int i = 0; i != N-1; ++i)
-	{
-		int n1, n2;
-		scanf("%d%d", &n1,&n2);
-		graph[n1].push_back(n2);
-		graph[n2].push_back(n1);
-	}
-	int maxn = 0, minn = 100000;
-	int node = 0;
-	dfs(1);
-	for (int i = 1; i <= N; ++i)
-	{
-		maxn = 0;
-		for (int j = 0; j != graph[i].size(); ++j)
-		{
-			if (order[i] < order[graph[i][j]])
-				maxn = max(maxn, size[graph[i][j]]);
-			else
-				maxn = max(maxn, N - size[i]);
-		}
-		if (maxn < minn)
-		{
-			minn = maxn;
-			node = i;
-		}
-	}
-	cout << node << " " << minn;
-
-
-
-	return 0;
+    cin.sync_with_stdio(0); cin.tie(0);
+    fill_n(tree_sz,20010,1);
+    cin >> N;
+    for (int i=0; i<N-1; ++i){
+        int v,u;
+        cin >> v >> u;
+        graph[v].push_back(u);
+        graph[u].push_back(v);
+    }
+    dfs(1);
+    printf("%d %d",best_node,min_max_subtree);
+    return 0;
 }

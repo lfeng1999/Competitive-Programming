@@ -1,41 +1,37 @@
-#include <iostream>
-#include <algorithm>
+#include <bits/stdc++.h>
 
 using namespace std;
-int olives[4001], size[4001], vals[150001];
+
+int dp[150010];
 
 int main()
 {
-	int Q, M, K;
-	scanf("%d%d%d", &Q, &M, &K);
-	for (int i = 0; i != M; ++i)
-	{
-		scanf("%d", &olives[i]);
-		size[i] = olives[i];
-		vals[size[i]] = min(vals[size[i]], olives[i]);
-	}
-	for (int i = M; i != M + K; ++i)
-	{
-		scanf("%d", &size[i]);
-		olives[i] = size[i] - 1;
-		vals[size[i]] = min(vals[size[i]], olives[i]);
-	}
-	int molive = 0;
-	for (int j = 0; j != M + K; ++j)
-	for (int i = Q; i >= 0; --i)
-	{
-		if (i + size[j] > Q)
-		{
-			vals[Q] = max(vals[Q], vals[i] + Q - i - 1);
-			molive = max(molive, vals[Q]);
-		}
-		else
-		{
-			vals[i + size[j]] = max(vals[i + size[j]], vals[i] + olives[j]);
-			molive = max(molive, vals[i + size[j]]);
-		}
-	}
+//    freopen("IOI.txt","r", stdin);
+    cin.sync_with_stdio(0); cin.tie(0);
 
-	cout << molive;
-	return 0;
+    int Q, M, K;
+    cin >> Q >> M >> K;
+    dp[0] = 0;
+    for (int i=0; i<M; ++i){
+        int F; cin >> F;
+        for (int j=Q-1; j > Q-F && j >= 0; --j){
+            dp[Q] = max(dp[Q], dp[j] + Q - j - 1);
+        }
+        for (int j=Q-F; j>=0; --j){
+            dp[j+F] = max(dp[j+F], dp[j] + F);
+        }
+    }
+    for (int i=0; i<K; ++i){
+        int F; cin >> F;
+        for (int j=Q-1; j > Q-F && j >= 0; --j){
+            dp[Q] = max(dp[Q], dp[j] + Q - j - 1);
+        }
+        for (int j=Q-F; j>=0; --j){
+            dp[j+F] = max(dp[j+F], dp[j] + F - 1);
+        }
+    }
+
+    printf("%d\n", dp[Q]);
+
+    return 0;
 }

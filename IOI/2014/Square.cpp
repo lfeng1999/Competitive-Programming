@@ -1,48 +1,52 @@
-#include <iostream>
-#include <algorithm>
-
-int grid[1001][1001];
+#include <bits/stdc++.h>
 
 using namespace std;
 
+int grid[1010][1010], N, best = 0;
+
+bool works(int len){
+    bool flag = false;
+    int cnt = 0;
+    for (int i = len; i <= N; ++i){
+        for (int j = len; j <= N; ++j){
+            if (grid[i][j] - grid[i-len][j] - grid[i][j-len] + grid[i-len][j-len] == 0){
+                flag = true;
+                cnt++;
+            }
+        }
+    }
+    if (flag)
+        best = cnt*len;
+//    if (flag) cout << len << endl;
+    return flag;
+}
+
 int main()
 {
-	int N = 0, maxi = 1, mc=0;
-	cin >> N;
-	for (int i = 0; i != N; ++i)
-	{
-		for (int j = 0; j != N; ++j)
-		{
-			cin >> grid[i][j];
-			if (grid[i][j])
-				++mc;
-		}
-	}
-	for (int i = 0; i != N - 1; ++i)
-	{
-		for (int j = 0; j != N - 1; ++j)
-		{
-			if ((grid[i][j]) && (grid[i + 1][j]) && (grid[i][j + 1]) && (grid[i + 1][j + 1]))
-			{
-				grid[i + 1][j + 1] = min(min(grid[i][j], grid[i + 1][j]), grid[i][j + 1]) + 1;
-				if (grid[i + 1][j + 1] > maxi)
-				{
-					maxi = grid[i + 1][j + 1];
-					mc = 1;
-				}
-				else if (grid[i + 1][j + 1] == maxi && maxi != 1)
-					++mc;
-			}
-		}
-	}
-	//for (int i = 0; i != N; ++i)
-	//{
-	//	for (int j = 0; j != N; ++j)
-	//	{
-	//		cout << grid[i][j] << " ";
-	//	}
-	//	cout << endl;
-	//}
-	cout << maxi*mc;
-	return 0;
+//    freopen("IOI.in","r",stdin);
+    cin.sync_with_stdio(0); cin.tie(0);
+
+    cin >> N;
+    for (int i=1; i<=N; ++i){
+        for (int j=1; j<=N; ++j){
+            cin >> grid[i][j];
+            grid[i][j] ^= 1;
+            grid[i][j] += grid[i-1][j] + grid[i][j-1] - grid[i-1][j-1];
+        }
+    }
+
+
+    int L = 0, R = N;
+    while (L < R){
+        int mid = (L+R)/2 + 1;
+
+        if (works(mid))
+            L = mid;
+        else
+            R = mid - 1;
+
+    }
+    printf("%d\n", best);
+
+    return 0;
 }

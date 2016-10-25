@@ -2,27 +2,30 @@
 
 using namespace std;
 
-pair<int,int> vase[2001];
-
 int main()
 {
-    cin.sync_with_stdio(0);cin.tie(0);
+    //freopen("IOI.txt","r",stdin);
+    cin.sync_with_stdio(0); cin.tie(0);
     int N;
     cin >> N;
-    for (int i=1; i <= N; ++i){
-        int mbit = 10, x = 0, j = i;
-        while (j > 0){
-            if (j & 1){
-                x+= 1 << mbit;
-            }
-            j >>= 1;
-            mbit--;
+
+    vector<pair<int,int>> V;
+
+    for (int i=1; i<=N; ++i){
+        bitset<31> bits = i;
+        for (int j=0; j<15; ++j){
+            int t = bits[j];
+            bits[j] = bits[30-j];
+            bits[30-j] = t;
         }
-        vase[i-1] = make_pair(x,i);
+        V.push_back(make_pair(bits.to_ulong(), i));
     }
-    sort(vase, vase + N);
-    for (int i=0; i!=N; ++i){
-        printf("%d\n",vase[i].second);
+    sort(V.begin(), V.end());
+
+    for (int i=0; i<N; ++i){
+        printf("%d\n", V[i].second);
     }
+
+
     return 0;
 }

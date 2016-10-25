@@ -1,58 +1,46 @@
-#include <iostream>
-#include <algorithm>
-#include <cstdio>
-#include <vector>
+#include <bits/stdc++.h>
 
 using namespace std;
 
-#define rint(a) scanf("%d",&a)
-const int MAXN = 1000010;
-int congest[MAXN], fan[MAXN], N, ftot = 0;
-bool past[MAXN];
-vector<int> graph[MAXN];
+const int MAX_N = 1000010;
+int city[MAX_N], par[MAX_N], subtree_sz[MAX_N], tot = 0, worstcase[MAX_N];
+vector<int> graph[MAX_N];
 
-int bash(int node)
-{
-	int temp = 0;
-	past[node] = true;
-	for (int i = 0; i != graph[node].size(); ++i)
-	{
-		if (!past[graph[node][i]])
-		{
-			int t = bash(graph[node][i]);
-			congest[node] = max(congest[node], t);
-			temp += t;
-		}
-	}
-	congest[node] = max(congest[node], ftot - fan[node] - temp);
-	return temp + fan[node];
+void dfs(int v, int p){
+    par[v] = p;
+    subtree_sz[v] = city[v];
+    for (int u : graph[v]){
+        if (u == p) continue;
+        dfs(u, v);
+        subtree_sz[v] += subtree_sz[u];
+        worstcase[v] = max(worstcase[v], subtree_sz[u]);
+    }
+    worstcase[v] = max(worstcase[v], tot - subtree_sz[v]);
 }
 
 int main()
 {
-	//freopen("TrafficCongest.txt","r",stdin);
-	rint(N);
-	for (int i = 0; i != N; ++i)
-	{
-		rint(fan[i]);
-		ftot += fan[i];
-	}
-	for (int i = 0; i != N - 1; ++i)
-	{
-		int a, b;
-		rint(a);
-		rint(b);
-		graph[a].push_back(b);
-		graph[b].push_back(a);
-	}
-	bash(0);
-	int mcongest = congest[0], city = 0;
-	for (int i = 1; i != N; ++i)
-	if (congest[i] < mcongest)
-	{
-		mcongest = congest[i];
-		city = i;
-	}
-	cout << city;
-	return 0;
+    //freopen("IOI.txt","r",stdin);
+    cin.sync_with_stdio(0); cin.tie(0);
+    int N;
+    cin >> N;
+    for (int i=0; i<N; ++i){
+        cin >> city[i];
+        tot += city[i];
+    }
+    for (int i=0; i<N-1; ++i){
+        int v, u; cin >> v >> u;
+        graph[v].push_back(u);
+        graph[u].push_back(v);
+    }
+    dfs(0, -1);
+    int ans = -1, best = 1e9;
+    for (int i=0; i<N; ++i){
+        if (worstcase[i] < best){
+            best = worstcase[i];
+            ans = i;
+        }
+    }
+    printf("%d\n", ans);
+    return 0;
 }

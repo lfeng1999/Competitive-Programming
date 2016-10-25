@@ -1,46 +1,35 @@
-#include <iostream>
-#include <fstream>
-#include <algorithm>
+#include <bits/stdc++.h>
 
 using namespace std;
 
-int N = 0, game[201], states[201][201], psums[201];
+int val[210], dp[210][210], psum[210];
 
-int sum(int i, int j)
-{
-	if (i)
-		return psums[j] - psums[i - 1];
-	else
-		return psums[j];
+int get_sum(int i, int j){return psum[j] - psum[i-1];}
+
+int solve(int i, int j){
+    if (dp[i][j] != -1) return dp[i][j];
+    int &ans = dp[i][j];
+    if (i > j) return ans = 0;
+
+    int tot = psum[j] - psum[i-1];
+
+    return ans = tot - min(solve(i, j-1), solve(i+1, j));
 }
-
-int dp(int i, int j)
-{
-	if (i == j)
-		return game[i];
-	if (states[i][j])
-		return states[i][j];
-
-	int c1 = sum(i, j) - dp(i + 1, j);
-	int c2 = sum(i, j) - dp(i, j-1);
-	states[i][j] = max(c1, c2);
-	return max(c1,c2);
-}
-
-
 
 int main()
 {
-	//ifstream file("game.txt");
-	cin >> N;
-	for (int i = 0; i != N; ++i)
-	{
-		cin >> game[i];
-		psums[i] = game[i];
-		if (i)
-			psums[i] += psums[i-1];
-	}
-	int x = dp(0, N - 1);
-	cout << x << " " << psums[N - 1] - x;
-	return 0;
+    //freopen("IOI.txt","r",stdin);
+    cin.sync_with_stdio(0); cin.tie(0);
+    memset(dp, -1, sizeof(dp));
+    int N;
+    cin >> N;
+    for (int i=1; i<=N; ++i){
+        cin >> val[i];
+        psum[i] = psum[i-1] + val[i];
+    }
+
+    int p1 = solve(1, N);
+    printf("%d %d\n", p1, psum[N] - p1);
+
+    return 0;
 }

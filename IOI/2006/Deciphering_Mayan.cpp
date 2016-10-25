@@ -2,48 +2,51 @@
 
 using namespace std;
 
-int freq[257];
-char mayan[3000001];
-int same = 0, ans = 0;
+string S1, S2;
+int glyph[55], cur[55];
+unordered_map<char, int> comp;
 
 int main()
 {
-    //freopen("DTMW.txt","r",stdin);
+    //freopen("IOI.txt","r",stdin);
     cin.sync_with_stdio(0); cin.tie(0);
-    int a,b;
-    cin >> a >> b;
-    for (int i=0; i!=a; ++i){
-        char x;
-        cin >> x;
-        freq[x]++;
+    int A, B;
+    cin >> A >> B >> S1 >> S2;
+    //printf("%d %d %s %s\n", A, B, S1.c_str(), S2.c_str());
+    int cnt = 1;
+    for (char a = 'a'; a <= 'z'; a++) comp[a] = cnt++;
+    for (char a = 'A'; a <= 'Z'; a++) comp[a] = cnt++;
+
+    for (char c : S1){
+        glyph[comp[c]]++;
     }
-    for (int i=0; i!=257; ++i){
-        if (freq[i] == 0){
-            same++;
-        }
+
+    int notsame = 0;
+    for (int i=0; i<55; ++i){
+        if (glyph[i] != 0) notsame++;
     }
-    for (int i=0; i!=b; ++i){
-        cin >> mayan[i];
-        if (freq[mayan[i]] == 0){
-            same--;
+
+    int ans = 0;
+    for (int i=0; i < S2.length(); ++i){
+        char c = S2[i];
+
+        if (cur[comp[c]] == glyph[comp[c]]) notsame++;
+        cur[comp[c]]++;
+        if (cur[comp[c]] == glyph[comp[c]]) notsame--;
+
+        if (i >= S1.length()){
+            if (cur[comp[S2[i-S1.length()]]] == glyph[comp[S2[i-S1.length()]]])
+                notsame++;
+
+            cur[comp[S2[i-S1.length()]]]--;
+
+            if (cur[comp[S2[i-S1.length()]]] == glyph[comp[S2[i-S1.length()]]])
+                notsame--;
         }
-        freq[mayan[i]]--;
-        if (freq[mayan[i]] == 0){
-            same++;
-        }
-        if (i >= a){
-            if (freq[mayan[i-a]] == 0){
-                same--;
-            }
-            freq[mayan[i-a]]++;
-            if (freq[mayan[i-a]] == 0){
-                same++;
-            }
-        }
-        if (same == 257){
+
+        if (notsame == 0)
             ans++;
-        }
     }
-    printf("%d",ans);
+    printf("%d\n", ans);
     return 0;
 }
